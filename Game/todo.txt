@@ -1,0 +1,13 @@
+* Add logic to handle fullscreen. i.e. rescale the resolution/surfaces so that it fits maximally to the given screen. Set the screen
+to black elsewhere.
+* Add menus
+    * Start menu
+    * Game over screen with retry or quit choices
+* UI
+    * HP
+    * Time
+    * Score
+* Sounds
+    * Player hurt sound
+    * Enemy destruction sound
+    * Shooting sound

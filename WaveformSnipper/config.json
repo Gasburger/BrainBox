@@ -1,0 +1,38 @@
+{
+    "left": {
+        "snippet_size": 1.5,
+        "right_proportion": 0.9
+    },
+    "right": {
+        "snippet_size": 1.5,
+        "right_proportion": 0.9
+    },
+    "blink": {
+        "snippet_size": 1.0,
+        "right_proportion": 0.8
+    },
+    "5moderateblinks": {
+        "snippet_size": 3.5,
+        "right_proportion": 0.9
+    },
+    "5quickblinks": {
+        "snippet_size": 1.75,
+        "right_proportion": 0.9
+    },
+    "leftrightleft": {
+        "snippet_size": 2.0,
+        "right_proportion": 0.9
+    },
+    "rightleftright": {
+        "snippet_size": 2.0,
+        "right_proportion": 0.9
+    },
+    "quickleft": {
+        "snippet_size": 2.5,
+        "right_proportion": 0.9
+    },
+    "quickright": {
+        "snippet_size": 2.5,
+        "right_proportion": 0.9
+    }
+}

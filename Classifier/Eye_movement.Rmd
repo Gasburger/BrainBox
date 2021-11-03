@@ -1,0 +1,183 @@
+---
+title: "Eye_movement"
+author: "Helen"
+date: "19/04/2021"
+output: html_document
+---
+
+```{r,include=FALSE}
+library(tidyverse)
+library(tuneR)
+library(devtools)
+library(ggplot2)
+library(cvTools)
+library(tsfeatures)
+library(limma)
+library(dplyr)
+library(visdat)
+library(dplyr)
+library(stats)
+library(DT)
+library(pheatmap)
+library(knitr)
+library(caret)
+library(sjPlot)
+```
+
+# Brain-box
+
+## Classifier
+
+The first step is to build a classification rule for detecting left and right under streaming condition where the function will take a sequence of signal as an input.
+
+### Read the data
+
+Fistly, have a look at the visualization of the wave file. We choose a short sequence from the Louis data as an example to classify whether there are eye movements and the left or right direction. 
+
+```{r}
+waveSeq <- readWave("Spike_Recorder/wave/Elsa_left1.wav")
+
+# time (in second) of the sequencing
+timeSeq <- seq_len(length(waveSeq@left))/waveSeq@samp.rate 
+
+plot(timeSeq, waveSeq@left, type = "l", ylab="Signal", xlab="Time(seconds)")
+title("Elsa left1")
+```
+
+
+### Left and right detection
+
+According to the wave graph above, it is clear that if there is a left eye movement, the wave is a sequence of positive signals followed by negative signals while if there is a right eye movement, the wave is a sequence of negative signals followed by positive signals. This enables us to build a classifier to detect whether an eye movement is left or right. Here is a simple classifer for left and right detection. 
+
+
+```{r}
+LR_detection = function(seq)
+{
+  maxval = which.max(seq)
+  minval = which.min(seq)
+  movement = ifelse(maxval < minval,  "L", "R")
+  return(movement)
+}
+```
+
+
+### Streaming classifier
+
+After building a left and right detection classifier, now we are going to build a streaming classifier. This streaming classifier is slightly different to detecting left and right for a given sequence because we are mimicking the situation where the signal is coming in continuously. Therefore, it is impossible to receive and use a entire sequence with a defined duration. A while loop is used to satisfy this situation and the sequence is being received until reaching the maximum time. 
+
+
+Each time, we look at an interval whose length is one second, so the number of data is the sample rate. If there is no event, we move to the next interval which is 1/10 interval length ahead so there is overlapping ensuring that we do not miss any event. If there is an event, we move to the next interval directly. 
+
+
+This function is using the zero-crossing classifier checking whether the sign of a mathematical function changes. When there is no event, as most data are around 0, there are more zero-crossings. If there is an event, most data are all positive or all negative, so there are less zero-crossings. 
+
+
+To classify whether there is an eye movement event, a threshold is needed. We set a threshold as 30, which is a reasonable number of events. 
+
+
+
+```{r}
+streaming_classifier = function(wave_file,
+                                window_size = wave_file@samp.rate,
+                                increment = window_size/10,
+                                thresholdEvents = 200
+                                  )
+  
+{
+  Y = wave_file@left
+  xtime = seq_len(length(wave_file@left))/wave_file@samp.rate
+  predicted_labels = c()
+  lower_interval = 1
+  max_time = max(xtime)*window_size
+  predicted = NULL
+  
+  while(max_time > lower_interval + window_size) 
+    {
+
+    upper_interval = lower_interval + window_size
+    interval = Y[lower_interval:upper_interval]
+    
+    
+    testStat = sum(interval[1:(length(interval) - 1)] * interval[2:(length(interval))] <= 0)
+    
+    
+    # using the threshold to determine eye movement intervals
+    
+    # have events
+    if (testStat < thresholdEvents){
+      predicted = LR_detection(interval)
+      predicted_labels = c(predicted_labels, predicted)
+      print(lower_interval/10000)
+      
+      # interval is increased by window_size (normally a event time)
+      lower_interval = lower_interval + window_size
+    }else{ 
+      # no events
+      
+      # interval is increased by increment (to detect further events)
+      lower_interval = lower_interval + increment 
+    }
+    
+    } ## end while
+  
+   
+  return(predicted_labels)
+}## end function
+```
+
+
+
+
+
+```{r}
+streaming_classifier(waveSeq)
+```
+
+
+## Accuracy
+
+After building a streaming classifier, it is necessary to check its accuracy of sequences with different lengths.
+
+```{r}
+dir <- "Spike_Recorder/wave"  
+all_files <- list.files(dir)
+acc_short <- c()
+wave_file <- list()
+
+
+for (i in all_files) {
+  wave_file[[i]] <- readWave(file.path(dir, i))
+}
+```
+
+
+
+
+
+```{r}
+for (j in 1:length(wave_file)) {
+    fit <- streaming_classifier(wave_file[[j]])
+    fit <- gsub(",","",toString(fit))
+    
+    plot(seq_len(length(wave_file[[j]]@left))/wave_file[[j]]@samp.rate 
+         , wave_file[[j]]@left, type = "l", ylab="Signal", xlab="Time(seconds)")
+    print(fit)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

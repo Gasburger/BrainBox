@@ -1,0 +1,22 @@
+# Marker IDs can be arbitrary strings.
+# Marker ID,	Time (in s)
+left,	2.2439
+left,	3.3540
+left,	4.5046
+right,	5.5858
+right,	6.5385
+right,	7.4502
+left,	8.6416
+left,	11.1253
+right,	13.5123
+left,	15.4892
+blink,	17.0184
+blink,	18.3353
+blink,	19.7176
+left,	21.4532
+left,	22.7661
+right,	24.8895
+left,	26.3360
+blink,	29.5411
+left,	31.4897
+right,	33.4849

@@ -1,0 +1,9 @@
+WAV streaming
+python main.py -s WAVStream -f ../MeasurementData/Elsa1l2r3b_sample1.wav
+
+Array streaming
+python main.py -s ArrayStream -f ../SpikerStreamPython/StreamedData/streamed_left_right_custom.npy
+
+SpikerBox streaming
+python main.py -s SpikerStream -p PORTNAME
+
